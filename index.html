@@ -9,6 +9,18 @@
         html, body { width: 100%; height: 100vh; height: 100dvh; overflow: hidden; background-color: #f9f6f0; color: #2c3e50; }
         body { display: flex; flex-direction: column; }
         
+        /* إشعار السجدة */
+        .sajda-banner {
+            display: none;
+            position: fixed; top: 70px; left: 50%; transform: translateX(-50%);
+            background-color: #e67e22; color: white; padding: 10px 20px;
+            border-radius: 30px; font-weight: bold; font-size: clamp(14px, 4vw, 18px);
+            box-shadow: 0 4px 15px rgba(230, 126, 34, 0.4); z-index: 200;
+            cursor: pointer; animation: slideDown 0.5s ease-out;
+            white-space: nowrap;
+        }
+        @keyframes slideDown { from { top: -50px; opacity: 0; } to { top: 70px; opacity: 1; } }
+
         /* الشريط العلوي */
         header { background-color: #2c3e50; padding: 10px 15px; position: sticky; top: 0; z-index: 100; display: flex; flex-direction: column; gap: 10px; color: white; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
         .top-bar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
@@ -17,28 +29,8 @@
         
         select { padding: 8px 12px; font-size: clamp(14px, 4vw, 16px); border-radius: 8px; border: none; font-weight: bold; background-color: #ecf0f1; color: #2c3e50; text-align: center; cursor: pointer; }
         
-        /* شريط الأزرار العلوي */
-        .action-bar {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            padding: 8px;
-            background-color: #34495e;
-            border-radius: 8px;
-            flex-wrap: wrap;
-        }
-        .action-bar button {
-            padding: 6px 12px;
-            font-size: clamp(12px, 3vw, 14px);
-            font-weight: bold;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            transition: 0.2s;
-        }
+        .action-bar { display: flex; justify-content: center; gap: 10px; padding: 8px; background-color: #34495e; border-radius: 8px; flex-wrap: wrap; }
+        .action-bar button { padding: 6px 12px; font-size: clamp(12px, 3vw, 14px); font-weight: bold; border: none; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: 0.2s; }
         .btn-save { background-color: #f39c12; color: white; }
         .btn-save:hover { background-color: #d68910; }
         .btn-go { background-color: #27ae60; color: white; display: none; }
@@ -48,52 +40,21 @@
         .btn-dua { background-color: #8e44ad; color: white; }
         .btn-dua:hover { background-color: #71368a; }
 
-        /* محتوى القرآن */
         main { flex: 1; overflow-y: auto; padding: 20px; max-width: 800px; margin: 0 auto; width: 100%; line-height: 2.2; font-size: clamp(22px, 6vw, 30px); text-align: justify; font-family: 'Traditional Arabic', 'Amiri', serif; padding-bottom: 120px; scroll-behavior: smooth; }
         .basmala { text-align: center; font-size: clamp(24px, 7vw, 32px); font-weight: bold; margin-bottom: 20px; color: #16a085; }
         .ayah { display: inline; transition: background 0.3s; }
         .ayah-number { display: inline-flex; justify-content: center; align-items: center; width: clamp(28px, 7vw, 40px); height: clamp(28px, 7vw, 40px); border-radius: 50%; border: 2px solid #16a085; color: #16a085; font-size: clamp(12px, 3vw, 16px); font-weight: bold; margin: 0 5px; vertical-align: middle; font-family: sans-serif; }
-        .sajda-mark { color: #e67e22; font-size: 1.2em; font-weight: bold; margin: 0 5px; vertical-align: middle; }
+        .sajda-mark { color: #e67e22; font-size: 1.4em; font-weight: bold; margin: 0 5px; vertical-align: middle; text-shadow: 0 0 5px rgba(230,126,34,0.5); }
         
-        /* الشريط السفلي */
-        .controls { 
-            position: fixed; bottom: 0; left: 0; right: 0; 
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 10px; background: rgba(249, 246, 240, 0.95);
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
-            flex-wrap: wrap; gap: 5px;
-            max-width: 800px; margin: 0 auto;
-        }
-        .controls button { 
-            flex: 1; min-width: 80px;
-            padding: 10px 5px; font-size: clamp(12px, 3.5vw, 16px); 
-            font-weight: bold; color: white; background-color: #16a085; 
-            border: none; border-radius: 8px; cursor: pointer; transition: background 0.3s; 
-            white-space: nowrap;
-        }
+        .controls { position: fixed; bottom: 0; left: 0; right: 0; display: flex; justify-content: space-between; align-items: center; padding: 10px; background: rgba(249, 246, 240, 0.95); box-shadow: 0 -2px 10px rgba(0,0,0,0.1); flex-wrap: wrap; gap: 5px; max-width: 800px; margin: 0 auto; }
+        .controls button { flex: 1; min-width: 80px; padding: 10px 5px; font-size: clamp(12px, 3.5vw, 16px); font-weight: bold; color: white; background-color: #16a085; border: none; border-radius: 8px; cursor: pointer; transition: background 0.3s; white-space: nowrap; }
         .controls button:hover { background-color: #1abc9c; }
         .controls button:disabled { background-color: #bdc3c7; cursor: not-allowed; }
 
-        /* نافذة دعاء الختم */
-        .modal {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8); z-index: 1000;
-            justify-content: center; align-items: center; padding: 20px;
-        }
-        .modal-content {
-            background: #fff; padding: 30px; border-radius: 15px;
-            max-width: 600px; max-height: 85vh; overflow-y: auto;
-            text-align: center; font-size: clamp(18px, 5vw, 24px);
-            line-height: 1.8; font-family: 'Traditional Arabic', 'Amiri', serif;
-            color: #2c3e50; box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            position: relative;
-        }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; padding: 20px; }
+        .modal-content { background: #fff; padding: 30px; border-radius: 15px; max-width: 600px; max-height: 85vh; overflow-y: auto; text-align: center; font-size: clamp(18px, 5vw, 24px); line-height: 1.8; font-family: 'Traditional Arabic', 'Amiri', serif; color: #2c3e50; box-shadow: 0 10px 30px rgba(0,0,0,0.3); position: relative; }
         .modal-content h2 { color: #16a085; margin-bottom: 20px; font-family: 'Segoe UI', Tahoma, sans-serif;}
-        .close-modal {
-            position: absolute; top: 10px; right: 15px;
-            font-size: 30px; cursor: pointer; color: #c0392b; font-weight: bold;
-            font-family: sans-serif;
-        }
+        .close-modal { position: absolute; top: 10px; right: 15px; font-size: 30px; cursor: pointer; color: #c0392b; font-weight: bold; font-family: sans-serif; }
     </style>
 </head>
 <body>
@@ -117,6 +78,11 @@
             <div>الصفحة: <span id="infoPage">-</span></div>
         </div>
     </header>
+
+    <!-- إشعار السجدة -->
+    <div class="sajda-banner" id="sajdaBanner" onclick="showSajdaDua()">
+        ⚠️ أنت الآن عند آية سجدة تلاوة (اضغط هنا لدعاء السجدة)
+    </div>
     
     <main id="quran-container"><div style="text-align: center; margin-top: 50px;">جاري تحميل بيانات القرآن...</div></main>
     
@@ -127,13 +93,25 @@
         <button id="btnNextPage" onclick="goToNextPage()">الصفحة التالية</button>
     </div>
 
-    <!-- نافذة دعاء الختم (الدعاء الجديد) -->
     <div class="modal" id="duaModal">
         <div class="modal-content">
             <span class="close-modal" onclick="closeDuaModal()">&times;</span>
             <h2>دعاء ختم القرآن الكريم</h2>
             <p style="text-align: justify;">
                 اللَّهُمَّ ارْحَمْنِي بِالْقُرْآنِ وَاجْعَلْهُ لِي إِمَامًا وَنُورًا وَهُدًى وَرَحْمَةً، اللَّهُمَّ ذَكِّرْنِي مِنْهُ مَا نَسِيتُ وَعَلِّمْنِي مِنْهُ مَا جَهِلْتُ وَارْزُقْنِي تِلَاوَتَهُ آنَاءَ اللَّيْلِ وَأَطْرَافَ النَّهَارِ وَاجْعَلْهُ لِي حُجَّةً يَا رَبَّ الْعَالَمِينَ * اللَّهُمَّ أَصْلِحْ لِي دِينِي الَّذِي هُوَ عِصْمَةُ أَمْرِي وَأَصْلِحْ لِي دُنْيَايَ الَّتِي فِيهَا مَعَاشِي وَأَصْلِحْ لِي آخِرَتِي الَّتِي فِيهَا مَعَادِي وَاجْعَلِ الْحَيَاةَ زِيَادَةً لِي فِي كُلِّ خَيْرٍ وَاجْعَلِ الْمَوْتَ رَاحَةً لِي مِنْ كُلِّ شَرٍّ * اللَّهُمَّ اجْعَلْ خَيْرَ عُمُرِي آخِرَهُ وَخَيْرَ عَمَلِي خَوَاتِمَهُ وَخَيْرَ أَيَّامِي يَوْمَ أَلْقَاكَ فِيهِ * اللَّهُمَّ إِنِّي أَسْأَلُكَ عِيشَةً هَنِيَّةً وَمِيتَةً سَوِيَّةً وَمَرَدًّا غَيْرَ مُخْزٍ وَلَا فَاضِحٍ * اللَّهُمَّ إِنِّي أَسْأَلُكَ خَيْرَ الْمَسْأَلَةِ وَخَيْرَ الدُّعَاءِ وَخَيْرَ النَّجَاحِ وَخَيْرَ الْعِلْمِ وَخَيْرَ الْعَمَلِ وَخَيْرَ الثَّوَابِ وَخَيْرَ الْحَيَاةِ وَخَيْرَ الْمَمَاتِ وَثَقِّلْ مَوَازِينِي وَحَقِّقْ إِيمَانِي وَارْفَعْ دَرَجَتِي وَتَقَبَّلْ صَلَاتِي وَاغْفِرْ خَطِيئَاتِي وَأَسْأَلُكَ الْعُلَا مِنَ الْجَنَّةِ * اللَّهُمَّ إِنِّي أَسْأَلُكَ مُوجِبَاتِ رَحْمَتِكَ وَعَزَائِمَ مَغْفِرَتِكَ وَالسَّلَامَةَ مِنْ كُلِّ إِثْمٍ وَالْغَنِيمَةَ مِنْ كُلِّ بِرٍّ وَالْفَوْزَ بِالْجَنَّةِ وَالنَّجَاةَ مِنَ النَّارِ * اللَّهُمَّ أَحْسِنْ عَاقِبَتَنَا فِي الْأُمُورِ كُلِّهَا وَأَجِرْنَا مِنْ خِزْيِ الدُّنْيَا وَعَذَابِ الْآخِرَةِ * اللَّهُمَّ اقْسِمْ لَنَا مِنْ خَشْيَتِكَ مَا تَحُولُ بِهِ بَيْنَنَا وَبَيْنَ مَعْصِيَتِكَ وَمِنْ طَاعَتِكَ مَا تُبَلِّغُنَا بِهَا جَنَّتَكَ وَمِنَ الْيَقِينِ مَا تُهَوِّنُ بِهِ عَلَيْنَا مَصَائِبَ الدُّنْيَا وَمَتِّعْنَا بِأَسْمَاعِنَا وَأَبْصَارِنَا وَقُوَّتِنَا مَا أَحْيَيْتَنَا وَاجْعَلْهُ الْوَارِثَ مِنَّا وَاجْعَلْ ثَأْرَنَا عَلَى مَنْ ظَلَمَنَا وَانْصُرْنَا عَلَى مَنْ عَادَانَا وَلَا تَجْعَلْ مُصِيبَتَنَا فِي دِينِنَا وَلَا تَجْعَلِ الدُّنْيَا أَكْبَرَ هَمِّنَا وَلَا مَبْلَغَ عِلْمِنَا وَلَا تُسَلِّطْ عَلَيْنَا مَنْ لَا يَرْحَمُنَا * اللَّهُمَّ لَا تَدَعْ لَنَا ذَنْبًا إِلَّا غَفَرْتَهُ وَلَا هَمًّا إِلَّا فَرَّجْتَهُ وَلَا دَيْنًا إِلَّا قَضَيْتَهُ وَلَا حَاجَةً مِنْ حَوَائِجِ الدُّنْيَا وَالْآخِرَةِ إِلَّا قَضَيْتَهَا يَا أَرْحَمَ الرَّاحِمِينَ * رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ. وَصَلَّى اللَّهُ عَلَى بَيِّنَا مُحَمَّدٍ وَعَلَى آلِهِ وَأَصْحَابِهِ الْأَخْيَارِ وَسَلَّمَ تَسْلِيمًا كَثِيرًا.
+            </p>
+        </div>
+    </div>
+
+    <!-- نافذة دعاء سجدة التلاوة -->
+    <div class="modal" id="sajdaModal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="document.getElementById('sajdaModal').style.display='none'">&times;</span>
+            <h2>دعاء سجدة التلاوة</h2>
+            <p style="text-align: justify;">
+                سَجَدَ وَجْهِيَ لِلَّذِي خَلَقَهُ، وَشَقَّ سَمْعَهُ وَبَصَرَهُ بِحَوْلِهِ وَقُوَّتِهِ، فَتَبَارَكَ اللَّهُ أَحْسَنُ الْخَالِقِينَ.
+                <br><br>
+                اللَّهُمَّ اكْتُبْ لِي بِهَا عِنْدَكَ أَجْرًا، وَاجْعَلْهَا لِي عِنْدَكَ ذُخْرًا، وَضَعْ عَنِّي بِهَا وِزْرًا، وَاقْبَلْهَا مِنِّي كَمَا قَبِلْتَهَا مِنْ عَبْدِكَ دَاوُدَ.
             </p>
         </div>
     </div>
@@ -150,6 +128,7 @@
         const btnGo = document.getElementById('btnGo');
         const btnClear = document.getElementById('btnClear');
         const duaModal = document.getElementById('duaModal');
+        const sajdaBanner = document.getElementById('sajdaBanner');
 
         const sajdaVerses = { 7: [206], 13: [15], 16: [49], 17: [109], 19: [58], 22: [18, 77], 25: [60], 27: [25], 32: [15], 38: [24], 41: [37], 53: [62], 84: [21], 96: [19] };
 
@@ -226,6 +205,7 @@
             select.value = index;
             
             if(firstVerse && firstVerse.juz) { juzSelect.value = firstVerse.juz; }
+            sajdaBanner.style.display = 'none'; // إخفاء إشعار السجدة عند تغيير السورة
 
             setTimeout(() => {
                 if (targetAyah) { 
@@ -267,16 +247,23 @@
             if (newIndex >= 0 && newIndex < quranData.length) { renderSurah(newIndex); }
         }
 
+        // منطق تحديد الصفحة الحالية بدقة
         function getCurrentPage() {
             const ayahs = container.querySelectorAll('.ayah');
             const containerRect = container.getBoundingClientRect();
+            // نبحث عن أول آية ظاهرة في الجزء السفلي من الشاشة (آخر آية نقرأها)
+            let lastVisibleAyah = null;
             for (let i = 0; i < ayahs.length; i++) {
                 const rect = ayahs[i].getBoundingClientRect();
-                if (rect.bottom >= containerRect.top + 50) { 
-                    const ayahNum = parseInt(ayahs[i].id.replace('ayah-', ''));
-                    const verse = quranData[currentIndex].verses.find(v => v.ayah_number == ayahNum);
-                    return verse ? parseInt(verse.page) : 1;
+                if (rect.top < containerRect.bottom && rect.bottom > containerRect.top) {
+                    lastVisibleAyah = ayahs[i];
                 }
+            }
+            
+            if (lastVisibleAyah) {
+                const ayahNum = parseInt(lastVisibleAyah.id.replace('ayah-', ''));
+                const verse = quranData[currentIndex].verses.find(v => v.ayah_number == ayahNum);
+                return verse ? parseInt(verse.page) : 1;
             }
             return 1;
         }
@@ -361,12 +348,42 @@
             alert('تم مسح العلامة بنجاح.');
         }
 
-        function showDuaModal() {
-            duaModal.style.display = 'flex';
+        function showDuaModal() { duaModal.style.display = 'flex'; }
+        function closeDuaModal() { duaModal.style.display = 'none'; }
+        
+        // دوال السجدة
+        function showSajdaDua() {
+            document.getElementById('sajdaModal').style.display = 'flex';
+            sajdaBanner.style.display = 'none'; // إخفاء الإشعار بعد الضغط
         }
-        function closeDuaModal() {
-            duaModal.style.display = 'none';
-        }
+
+        // مراقبة التمرير لإظهار إشعار السجدة
+        container.addEventListener('scroll', () => {
+            const surahNum = currentIndex + 1;
+            if (!sajdaVerses[surahNum]) return;
+
+            const ayahs = container.querySelectorAll('.ayah');
+            const containerRect = container.getBoundingClientRect();
+            
+            let sajdaVisible = false;
+            for (let i = 0; i < ayahs.length; i++) {
+                const rect = ayahs[i].getBoundingClientRect();
+                // إذا كانت الآية في منتصف الشاشة تقريباً وكانت بها سجدة
+                if (rect.top >= containerRect.top && rect.bottom <= containerRect.bottom) {
+                    const ayahNum = parseInt(ayahs[i].id.replace('ayah-', ''));
+                    if (sajdaVerses[surahNum].includes(ayahNum)) {
+                        sajdaVisible = true;
+                        break;
+                    }
+                }
+            }
+
+            if (sajdaVisible) {
+                sajdaBanner.style.display = 'block';
+            } else {
+                sajdaBanner.style.display = 'none';
+            }
+        });
 
         loadQuranData();
     </script>
