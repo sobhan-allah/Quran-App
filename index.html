@@ -9,14 +9,13 @@
         html, body { width: 100%; height: 100vh; height: 100dvh; overflow: hidden; background-color: #f9f6f0; color: #2c3e50; }
         body { display: flex; flex-direction: column; }
         
-        /* إشعار السجدة */
         .sajda-banner {
             display: none; position: fixed; top: 15px; left: 50%; transform: translateX(-50%);
             background-color: #e67e22; color: white; padding: 12px 20px;
             border-radius: 30px; font-weight: bold; font-size: clamp(14px, 4vw, 18px);
             box-shadow: 0 4px 15px rgba(230, 126, 34, 0.6); z-index: 9999;
             cursor: pointer; animation: slideDown 0.5s ease-out; border: 2px solid white;
-            text-align: center;
+            text-align: center; white-space: nowrap;
         }
         @keyframes slideDown { from { top: -60px; opacity: 0; } to { top: 15px; opacity: 1; } }
 
@@ -39,19 +38,15 @@
         .ayah { display: inline; transition: background 0.3s; }
         .ayah-number { display: inline-flex; justify-content: center; align-items: center; width: clamp(28px, 7vw, 40px); height: clamp(28px, 7vw, 40px); border-radius: 50%; border: 2px solid #16a085; color: #16a085; font-size: clamp(12px, 3vw, 16px); font-weight: bold; margin: 0 5px; vertical-align: middle; font-family: sans-serif; }
         
-        /* علامة السجدة */
         .sajda-mark { 
-            color: #f39c12; 
-            font-size: 1.4em; 
-            font-weight: bold; 
-            margin: 0 5px; 
-            vertical-align: middle; 
-            cursor: pointer; 
-            text-shadow: 0 0 8px rgba(243, 156, 18, 0.6);
-            transition: transform 0.2s;
-            display: inline-block;
+            display: inline-flex; justify-content: center; align-items: center;
+            width: clamp(28px, 7vw, 40px); height: clamp(28px, 7vw, 40px);
+            background-color: #f39c12; color: white; border-radius: 50%;
+            font-size: clamp(16px, 5vw, 24px); font-weight: bold; margin: 0 5px;
+            cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            vertical-align: middle; transition: transform 0.2s;
         }
-        .sajda-mark:hover { transform: scale(1.2); }
+        .sajda-mark:hover { transform: scale(1.1); }
         
         .controls { position: fixed; bottom: 0; left: 0; right: 0; display: flex; justify-content: space-between; align-items: center; padding: 10px; background: rgba(249, 246, 240, 0.95); box-shadow: 0 -2px 10px rgba(0,0,0,0.1); flex-wrap: wrap; gap: 5px; max-width: 800px; margin: 0 auto; }
         .controls button { flex: 1; min-width: 80px; padding: 10px 5px; font-size: clamp(12px, 3.5vw, 16px); font-weight: bold; color: white; background-color: #16a085; border: none; border-radius: 8px; cursor: pointer; transition: background 0.3s; white-space: nowrap; }
@@ -85,7 +80,6 @@
         </div>
     </header>
 
-    <!-- إشعار السجدة -->
     <div class="sajda-banner" id="sajdaBanner" onclick="showSajdaDua()">
         ⚠️ أنت الآن عند آية سجدة تلاوة (اضغط هنا لدعاء السجدة)
     </div>
@@ -93,10 +87,10 @@
     <main id="quran-container"><div style="text-align: center; margin-top: 50px;">جاري تحميل بيانات القرآن...</div></main>
     
     <div class="controls">
-        <button id="btnPrevPage" onclick="goToPrevPage()">الصفحة السابقة</button>
+        <button id="btnPrevPage" onclick="scrollPage('up')">الصفحة السابقة</button>
         <button id="btnPrevSurah" onclick="changeSurah(-1)">السورة السابقة</button>
         <button id="btnNextSurah" onclick="changeSurah(1)">السورة التالية</button>
-        <button id="btnNextPage" onclick="goToNextPage()">الصفحة التالية</button>
+        <button id="btnNextPage" onclick="scrollPage('down')">الصفحة التالية</button>
     </div>
 
     <div class="modal" id="duaModal">
@@ -126,6 +120,7 @@
 
         let quranData = [];
         let currentIndex = 0;
+        
         const select = document.getElementById('surahSelect');
         const juzSelect = document.getElementById('juzSelect');
         const container = document.getElementById('quran-container');
@@ -177,23 +172,22 @@
             }
         }
 
-        // دالة الحصول على الجزء من الآية
         function getJuzByAyah(surahIdx, ayahNum) {
             const verse = quranData[surahIdx].verses.find(v => v.ayah_number == ayahNum);
             return verse ? parseInt(verse.juz) : 1;
         }
 
-        function renderSurah(index, targetAyah = null, targetPage = null) {
+        function renderSurah(index, targetAyah = null) {
             currentIndex = index;
             const surah = quranData[index];
             
             document.getElementById('infoSurah').textContent = surahNames[index];
             
             let firstVerse = surah.verses && surah.verses.length > 0 ? surah.verses[0] : null;
-            let initialJuz = firstVerse && firstVerse.juz ? firstVerse.juz : 1;
-            document.getElementById('infoJuz').textContent = initialJuz;
+            let startJuz = firstVerse && firstVerse.juz ? firstVerse.juz : 1;
+            document.getElementById('infoJuz').textContent = startJuz;
             document.getElementById('infoPage').textContent = firstVerse && firstVerse.page ? firstVerse.page : "-";
-            juzSelect.value = initialJuz;
+            juzSelect.value = startJuz;
 
             let content = '';
             if (index !== 8) { 
@@ -206,7 +200,6 @@
                     let verseNumber = verse.ayah_number;
                     let surahNum = index + 1;
 
-                    // إضافة العلامة مع حدث الضغط
                     let sajdaHTML = "";
                     if (sajdaVerses[surahNum] && sajdaVerses[surahNum].includes(verseNumber)) {
                         sajdaHTML = `<span class="sajda-mark" onclick="showSajdaDua()">۩</span>`;
@@ -225,28 +218,22 @@
             setTimeout(() => {
                 if (targetAyah) { 
                     const el = document.getElementById(`ayah-${targetAyah}`); 
-                    if (el) {
-                        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        // تحديث الجزء بناءً على الآية المستهدفة
-                        let juz = getJuzByAyah(index, targetAyah);
-                        document.getElementById('infoJuz').textContent = juz;
-                        juzSelect.value = juz;
-                    }
+                    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 } 
-                else if (targetPage) {
-                    const pageAyah = surah.verses.find(v => v.page == targetPage);
-                    if (pageAyah) {
-                        const el = document.getElementById(`ayah-${pageAyah.ayah_number}`);
-                        if (el) {
-                            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                            let juz = getJuzByAyah(index, pageAyah.ayah_number);
-                            document.getElementById('infoJuz').textContent = juz;
-                            juzSelect.value = juz;
-                        }
-                    }
-                }
                 else { container.scrollTop = 0; }
             }, 100);
+        }
+
+        // الزر الذكي للتنقل بين الصفحات
+        function scrollPage(direction) {
+            const containerRect = container.getBoundingClientRect();
+            const scrollAmount = container.clientHeight * 0.90; // التحرك بمقدار 90% من الشاشة
+            
+            if (direction === 'down') {
+                container.scrollBy({ top: scrollAmount, behavior: 'smooth' });
+            } else {
+                container.scrollBy({ top: -scrollAmount, behavior: 'smooth' });
+            }
         }
 
         function jumpToSurah(val) {
@@ -271,91 +258,6 @@
         function changeSurah(direction) {
             const newIndex = currentIndex + direction;
             if (newIndex >= 0 && newIndex < quranData.length) { renderSurah(newIndex); }
-        }
-
-        // دالة دقيقة لإيجاد الصفحة بناءً على آخر آية ظاهرة في أسفل الشاشة
-        function getLastVisiblePage() {
-            const ayahs = container.querySelectorAll('.ayah');
-            const containerRect = container.getBoundingClientRect();
-            let lastVisibleAyah = null;
-            
-            for (let i = 0; i < ayahs.length; i++) {
-                const rect = ayahs[i].getBoundingClientRect();
-                if (rect.top < containerRect.bottom && rect.bottom > containerRect.top) {
-                    lastVisibleAyah = ayahs[i];
-                }
-            }
-            
-            if (lastVisibleAyah) {
-                const ayahNum = parseInt(lastVisibleAyah.id.replace('ayah-', ''));
-                const verse = quranData[currentIndex].verses.find(v => v.ayah_number == ayahNum);
-                return verse ? parseInt(verse.page) : 1;
-            }
-            return 1;
-        }
-
-        // دالة دقيقة لإيجاد أول آية ظاهرة في أعلى الشاشة
-        function getFirstVisiblePage() {
-            const ayahs = container.querySelectorAll('.ayah');
-            const containerRect = container.getBoundingClientRect();
-            
-            for (let i = 0; i < ayahs.length; i++) {
-                const rect = ayahs[i].getBoundingClientRect();
-                if (rect.bottom >= containerRect.top + 50) { 
-                    const ayahNum = parseInt(ayahs[i].id.replace('ayah-', ''));
-                    const verse = quranData[currentIndex].verses.find(v => v.ayah_number == ayahNum);
-                    return verse ? parseInt(verse.page) : 1;
-                }
-            }
-            return 1;
-        }
-
-        function goToNextPage() {
-            let currentPage = getLastVisiblePage();
-            let nextPage = currentPage + 1;
-            
-            for (let i = 0; i < quranData.length; i++) {
-                let verses = quranData[i].verses;
-                let found = verses.find(v => v.page == nextPage);
-                if (found) {
-                    if (i === currentIndex) {
-                        const el = document.getElementById(`ayah-${found.ayah_number}`);
-                        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                        document.getElementById('infoPage').textContent = nextPage;
-                        let juz = getJuzByAyah(i, found.ayah_number);
-                        document.getElementById('infoJuz').textContent = juz;
-                        juzSelect.value = juz;
-                    } else {
-                        renderSurah(i, null, nextPage);
-                    }
-                    return;
-                }
-            }
-        }
-
-        function goToPrevPage() {
-            let currentPage = getFirstVisiblePage();
-            let prevPage = currentPage - 1;
-            if(prevPage < 1) return;
-
-            for (let i = quranData.length - 1; i >= 0; i--) {
-                let verses = quranData[i].verses;
-                let foundVerses = verses.filter(v => v.page == prevPage);
-                if (foundVerses.length > 0) {
-                    let firstVerseOfPrevPage = foundVerses[0]; 
-                    if (i === currentIndex) {
-                        const el = document.getElementById(`ayah-${firstVerseOfPrevPage.ayah_number}`);
-                        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                        document.getElementById('infoPage').textContent = prevPage;
-                        let juz = getJuzByAyah(i, firstVerseOfPrevPage.ayah_number);
-                        document.getElementById('infoJuz').textContent = juz;
-                        juzSelect.value = juz;
-                    } else {
-                        renderSurah(i, firstVerseOfPrevPage.ayah_number);
-                    }
-                    return;
-                }
-            }
         }
 
         function getVisibleAyah() {
@@ -398,27 +300,27 @@
 
         function showDuaModal() { duaModal.style.display = 'flex'; }
         function closeDuaModal() { duaModal.style.display = 'none'; }
-        
         function showSajdaDua() {
             document.getElementById('sajdaModal').style.display = 'flex';
             sajdaBanner.style.display = 'none'; 
         }
 
-        // مراقبة التمرير لإظهار إشعار السجدة وتحديث الجزء
+        // تحديث الأجزاء والصفحات أثناء التمرير
         container.addEventListener('scroll', () => {
             const surahNum = currentIndex + 1;
+            if (!quranData[currentIndex] || !quranData[currentIndex].verses) return;
             
-            // تحديث الجزء تلقائياً أثناء التمرير
-            let firstVisPage = getFirstVisiblePage();
-            if (quranData[currentIndex].verses) {
-                const visibleAyahNum = getVisibleAyah();
-                let currentJuz = getJuzByAyah(currentIndex, visibleAyahNum);
-                document.getElementById('infoJuz').textContent = currentJuz;
-                juzSelect.value = currentJuz;
-                document.getElementById('infoPage').textContent = firstVisPage;
+            const visibleAyahNum = getVisibleAyah();
+            
+            const verse = quranData[currentIndex].verses.find(v => v.ayah_number == visibleAyahNum);
+            if (verse && verse.page) {
+                document.getElementById('infoPage').textContent = verse.page;
             }
 
-            // إظهار إشعار السجدة
+            let currentJuz = getJuzByAyah(currentIndex, visibleAyahNum);
+            document.getElementById('infoJuz').textContent = currentJuz;
+            juzSelect.value = currentJuz;
+
             if (!sajdaVerses[surahNum]) return;
             const ayahs = container.querySelectorAll('.ayah');
             const containerRect = container.getBoundingClientRect();
