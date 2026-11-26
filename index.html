@@ -8,17 +8,48 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, sans-serif; }
         html, body { width: 100%; height: 100vh; height: 100dvh; overflow: hidden; background-color: #f9f6f0; color: #2c3e50; }
         body { display: flex; flex-direction: column; }
+        
         header { background-color: #2c3e50; padding: 10px 15px; position: sticky; top: 0; z-index: 100; display: flex; flex-direction: column; gap: 10px; color: white; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
         .top-bar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
         .info-bar { display: flex; justify-content: center; gap: 15px; font-size: clamp(12px, 3.5vw, 16px); background: rgba(255,255,255,0.1); padding: 5px 10px; border-radius: 8px; width: 100%; }
         .info-bar span { font-weight: bold; color: #f1c40f; }
-        select, .resume-btn { padding: 8px 12px; font-size: clamp(14px, 4vw, 16px); border-radius: 8px; border: none; font-weight: bold; background-color: #ecf0f1; color: #2c3e50; text-align: center; cursor: pointer; }
-        .resume-btn { background-color: #e67e22; color: white; display: none; }
-        main { flex: 1; overflow-y: auto; padding: 20px; max-width: 800px; margin: 0 auto; width: 100%; line-height: 2.2; font-size: clamp(22px, 6vw, 30px); text-align: justify; font-family: 'Traditional Arabic', 'Amiri', serif; padding-bottom: 100px; }
+        
+        select { padding: 8px 12px; font-size: clamp(14px, 4vw, 16px); border-radius: 8px; border: none; font-weight: bold; background-color: #ecf0f1; color: #2c3e50; text-align: center; cursor: pointer; }
+        
+        /* تنسيق شريط البوك مارك */
+        .bookmark-bar {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            padding: 8px;
+            background-color: #34495e;
+            border-radius: 8px;
+        }
+        .bookmark-bar button {
+            padding: 6px 12px;
+            font-size: clamp(12px, 3vw, 14px);
+            font-weight: bold;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: 0.2s;
+        }
+        .btn-save { background-color: #f39c12; color: white; }
+        .btn-save:hover { background-color: #d68910; }
+        .btn-go { background-color: #27ae60; color: white; display: none; }
+        .btn-go:hover { background-color: #229954; }
+        .btn-clear { background-color: #c0392b; color: white; display: none; }
+        .btn-clear:hover { background-color: #a93226; }
+
+        main { flex: 1; overflow-y: auto; padding: 20px; max-width: 800px; margin: 0 auto; width: 100%; line-height: 2.2; font-size: clamp(22px, 6vw, 30px); text-align: justify; font-family: 'Traditional Arabic', 'Amiri', serif; padding-bottom: 100px; scroll-behavior: smooth; }
         .basmala { text-align: center; font-size: clamp(24px, 7vw, 32px); font-weight: bold; margin-bottom: 20px; color: #16a085; }
         .ayah { display: inline; transition: background 0.3s; }
         .ayah-number { display: inline-flex; justify-content: center; align-items: center; width: clamp(28px, 7vw, 40px); height: clamp(28px, 7vw, 40px); border-radius: 50%; border: 2px solid #16a085; color: #16a085; font-size: clamp(12px, 3vw, 16px); font-weight: bold; margin: 0 5px; vertical-align: middle; font-family: sans-serif; }
         .sajda-mark { color: #e67e22; font-size: 1.2em; font-weight: bold; margin: 0 5px; vertical-align: middle; }
+        
         .controls { position: fixed; bottom: 15px; left: 0; right: 0; display: flex; justify-content: space-between; padding: 0 20px; pointer-events: none; max-width: 800px; margin: 0 auto; }
         .controls button { pointer-events: auto; padding: 12px 24px; font-size: clamp(14px, 4vw, 18px); font-weight: bold; color: white; background-color: #16a085; border: none; border-radius: 50px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); cursor: pointer; transition: background 0.3s; }
         .controls button:hover { background-color: #1abc9c; }
@@ -29,10 +60,17 @@
     <header>
         <div class="top-bar">
             <div style="font-size: clamp(16px, 5vw, 22px); font-weight: bold;">القرآن الكريم</div>
-            <select id="surahSelect" onchange="loadSurah(this.value)"></select>
+            <select id="surahSelect" onchange="jumpToSurah(this.value)"></select>
             <select id="juzSelect" onchange="loadJuz(this.value)"></select>
-            <button class="resume-btn" id="resumeBtn" onclick="resumeReading()">متابعة القراءة</button>
         </div>
+        
+        <!-- شريط البوك مارك -->
+        <div class="bookmark-bar">
+            <button class="btn-save" onclick="saveCurrentBookmark()">🔖 حفظ العلامة</button>
+            <button class="btn-go" id="btnGo" onclick="goToSavedBookmark()">↩️ العودة للعلامة</button>
+            <button class="btn-clear" id="btnClear" onclick="clearSavedBookmark()">🗑️ مسح العلامة</button>
+        </div>
+
         <div class="info-bar">
             <div>السورة: <span id="infoSurah">-</span></div>
             <div>الجزء: <span id="infoJuz">-</span></div>
@@ -46,7 +84,6 @@
     </div>
 
     <script>
-        // قائمة بأسماء السور الـ 114
         const surahNames = ["الفاتحة","البقرة","آل عمران","النساء","المائدة","الأنعام","الأعراف","الأنفال","التوبة","يونس","هود","يوسف","الرعد","إبراهيم","الحجر","النحل","الإسراء","الكهف","مريم","طه","الأنبياء","الحج","المؤمنون","النور","الفرقان","الشعراء","النمل","القصص","العنكبوت","الروم","لقمان","السجدة","الأحزاب","سبأ","فاطر","يس","الصافات","ص","الزمر","غافر","فصلت","الشورى","الزخرف","الدخان","الجاثية","الأحقاف","محمد","الفتح","الحجرات","ق","الذاريات","الطور","النجم","القمر","الرحمن","الواقعة","الحديد","المجادلة","الحشر","الممتحنة","الصف","الجمعة","المنافقون","التغابن","الطلاق","التحريم","الملك","القلم","الحاقة","المعارج","نوح","الجن","المزمل","المدثر","القيامة","الإنسان","المرسلات","النبأ","النازعات","عبس","التكوير","الانفطار","المطففين","الانشقاق","البروج","الطارق","الأعلى","الغاشية","الفجر","البلد","الشمس","الليل","الضحى","الشرح","التين","العلق","القدر","البينة","الزلزلة","العاديات","القارعة","التكاثر","العصر","الهمزة","الفيل","قريش","الماعون","الكوثر","الكافرون","النصر","المسد","الإخلاص","الفلق","الناس"];
 
         let quranData = [];
@@ -56,12 +93,17 @@
         const container = document.getElementById('quran-container');
         const btnPrev = document.getElementById('btnPrev');
         const btnNext = document.getElementById('btnNext');
-        const resumeBtn = document.getElementById('resumeBtn');
-
-        let savedPosition = JSON.parse(localStorage.getItem('quranBookmark'));
-        if (savedPosition) { resumeBtn.style.display = 'block'; }
+        
+        const btnGo = document.getElementById('btnGo');
+        const btnClear = document.getElementById('btnClear');
 
         const sajdaVerses = { 7: [206], 13: [15], 16: [49], 17: [109], 19: [58], 22: [18, 77], 25: [60], 27: [25], 32: [15], 38: [24], 41: [37], 53: [62], 84: [21], 96: [19] };
+
+        // التحقق من وجود علامة محفوظة مسبقاً
+        if (localStorage.getItem('savedBookmark')) {
+            btnGo.style.display = 'flex';
+            btnClear.style.display = 'flex';
+        }
 
         async function loadQuranData() {
             try {
@@ -69,12 +111,9 @@
                 if (!response.ok) throw new Error('Network response was not ok');
                 let rawData = await response.json();
                 
-                // تنظيم المصفوفة المسطحة إلى مصفوفة سور
                 let organized = [];
                 for(let i=1; i<=114; i++) {
-                    // تصفية الآيات الخاصة بالسورة الحالية
                     let verses = rawData.filter(v => v.surah_id == i);
-                    // ترتيب الآيات تصاعدياً حسب رقم الآية
                     verses.sort((a,b) => a.ayah_number - b.ayah_number);
                     organized.push({ id: i, name: surahNames[i-1], verses: verses });
                 }
@@ -94,8 +133,8 @@
                     juzSelect.appendChild(opt);
                 }
                 
-                if (savedPosition) { renderSurah(savedPosition.surah, savedPosition.ayah); } 
-                else { renderSurah(0); }
+                // عرض السورة الأولى افتراضياً
+                renderSurah(0);
             } catch (error) {
                 console.error(error);
                 container.innerHTML = '<div style="text-align:center; margin-top:50px; color:red;">حدث خطأ في تحميل البيانات. تأكد من وجود ملف quran.json في نفس المجلد.</div>';
@@ -108,19 +147,17 @@
             
             document.getElementById('infoSurah').textContent = surahNames[index];
             
-            // جلب الجزء والصفحة من أول آية في السورة
             let firstVerse = surah.verses && surah.verses.length > 0 ? surah.verses[0] : null;
             document.getElementById('infoJuz').textContent = firstVerse && firstVerse.juz ? firstVerse.juz : "-";
             document.getElementById('infoPage').textContent = firstVerse && firstVerse.page ? firstVerse.page : "-";
 
             let content = '';
-            if (index !== 8) { // التوبة لا تبدأ بالبسملة
+            if (index !== 8) { 
                 content += `<div class="basmala">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</div>`;
             }
 
             if (surah.verses && Array.isArray(surah.verses)) {
                 surah.verses.forEach((verse) => {
-                    // استخدام الحقول الصحيحة من ملفك
                     let text = verse.text_uthmani || verse.text_simple || "";
                     let verseNumber = verse.ayah_number;
                     let surahNum = index + 1;
@@ -135,42 +172,92 @@
 
             container.innerHTML = content;
             select.value = index;
+            
+            // تحديث قائمة الأجزاء بناءً على السورة المختارة
+            if(firstVerse && firstVerse.juz) { juzSelect.value = firstVerse.juz; }
+
             btnPrev.disabled = (index === 0);
             btnNext.disabled = (index === quranData.length - 1);
 
-            saveBookmark(index, targetAyah || 1);
             setTimeout(() => {
-                if (targetAyah) { const el = document.getElementById(`ayah-${targetAyah}`); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' }); } 
+                if (targetAyah) { 
+                    const el = document.getElementById(`ayah-${targetAyah}`); 
+                    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' }); 
+                } 
                 else { container.scrollTop = 0; }
             }, 100);
         }
 
-        function saveBookmark(surahIndex, ayahNumber) { localStorage.setItem('quranBookmark', JSON.stringify({ surah: surahIndex, ayah: ayahNumber })); }
-        function resumeReading() { if (savedPosition) { renderSurah(savedPosition.surah, savedPosition.ayah); } }
+        // الانتقال عند اختيار سورة
+        function jumpToSurah(val) {
+            renderSurah(parseInt(val));
+        }
 
+        // الانتقال عند اختيار جزء
         function loadJuz(juzNumber) {
             const juzStr = juzNumber.toString();
-            let found = false;
             for (let i = 0; i < quranData.length; i++) {
                 let verses = quranData[i].verses;
                 if (verses) {
                     for (let j = 0; j < verses.length; j++) {
                         if (verses[j].juz && verses[j].juz.toString() === juzStr) {
-                            // الانتقال للسورة الصحيحة والآية الصحيحة
                             renderSurah(i, verses[j].ayah_number);
-                            found = true; break;
+                            return;
                         }
                     }
                 }
-                if (found) break;
             }
-            if(!found) alert("لم يتم العثور على الجزء المحدد.");
         }
 
         function changeSurah(direction) {
             const newIndex = currentIndex + direction;
             if (newIndex >= 0 && newIndex < quranData.length) { renderSurah(newIndex); }
         }
+
+        // ==========================================
+        // وظائف البوك مارك (العلامة المرجعية)
+        // ==========================================
+        
+        // دالة لمعرفة الآية الظاهرة حالياً على الشاشة
+        function getVisibleAyah() {
+            const ayahs = container.querySelectorAll('.ayah');
+            const containerRect = container.getBoundingClientRect();
+            for (let i = 0; i < ayahs.length; i++) {
+                const rect = ayahs[i].getBoundingClientRect();
+                // إذا كانت الآية ظاهرة في الجزء العلوي من الشاشة
+                if (rect.top >= containerRect.top - 50) {
+                    return parseInt(ayahs[i].id.replace('ayah-', ''));
+                }
+            }
+            return 1; // افتراضي
+        }
+
+        function saveCurrentBookmark() {
+            const visibleAyah = getVisibleAyah();
+            const bookmark = { surah: currentIndex, ayah: visibleAyah };
+            localStorage.setItem('savedBookmark', JSON.stringify(bookmark));
+            
+            btnGo.style.display = 'flex';
+            btnClear.style.display = 'flex';
+            
+            alert(`تم حفظ العلامة بنجاح عند سورة ${surahNames[currentIndex]} - الآية ${visibleAyah}`);
+        }
+
+        function goToSavedBookmark() {
+            const saved = localStorage.getItem('savedBookmark');
+            if (saved) {
+                const b = JSON.parse(saved);
+                renderSurah(b.surah, b.ayah);
+            }
+        }
+
+        function clearSavedBookmark() {
+            localStorage.removeItem('savedBookmark');
+            btnGo.style.display = 'none';
+            btnClear.style.display = 'none';
+            alert('تم مسح العلامة بنجاح.');
+        }
+
         loadQuranData();
     </script>
 </body>
