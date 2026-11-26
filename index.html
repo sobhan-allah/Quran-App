@@ -46,7 +46,7 @@
     </div>
 
     <script>
-        // قائمة بأسماء السور الـ 114 لضمان عدم ظهور undefined
+        // قائمة بأسماء السور الـ 114
         const surahNames = ["الفاتحة","البقرة","آل عمران","النساء","المائدة","الأنعام","الأعراف","الأنفال","التوبة","يونس","هود","يوسف","الرعد","إبراهيم","الحجر","النحل","الإسراء","الكهف","مريم","طه","الأنبياء","الحج","المؤمنون","النور","الفرقان","الشعراء","النمل","القصص","العنكبوت","الروم","لقمان","السجدة","الأحزاب","سبأ","فاطر","يس","الصافات","ص","الزمر","غافر","فصلت","الشورى","الزخرف","الدخان","الجاثية","الأحقاف","محمد","الفتح","الحجرات","ق","الذاريات","الطور","النجم","القمر","الرحمن","الواقعة","الحديد","المجادلة","الحشر","الممتحنة","الصف","الجمعة","المنافقون","التغابن","الطلاق","التحريم","الملك","القلم","الحاقة","المعارج","نوح","الجن","المزمل","المدثر","القيامة","الإنسان","المرسلات","النبأ","النازعات","عبس","التكوير","الانفطار","المطففين","الانشقاق","البروج","الطارق","الأعلى","الغاشية","الفجر","البلد","الشمس","الليل","الضحى","الشرح","التين","العلق","القدر","البينة","الزلزلة","العاديات","القارعة","التكاثر","العصر","الهمزة","الفيل","قريش","الماعون","الكوثر","الكافرون","النصر","المسد","الإخلاص","الفلق","الناس"];
 
         let quranData = [];
@@ -67,23 +67,18 @@
             try {
                 const response = await fetch('quran.json');
                 if (!response.ok) throw new Error('Network response was not ok');
-                quranData = await response.json();
+                let rawData = await response.json();
                 
-                // إذا كان الملف عبارة عن مصفوفة مسطحة للآيات (Flat array)
-                if (quranData.length > 0 && quranData[0].surah_id) {
-                    let organized = [];
-                    for(let i=1; i<=114; i++) {
-                        let verses = quranData.filter(v => v.surah_id == i);
-                        organized.push({ id: i, name: surahNames[i-1], verses: verses });
-                    }
-                    quranData = organized;
-                } 
-                // إذا كان الملف يحتوي على كائنات السور مباشرة
-                else if (quranData.length === 114) {
-                    quranData.forEach((surah, idx) => {
-                        surah.name = surahNames[idx];
-                    });
+                // تنظيم المصفوفة المسطحة إلى مصفوفة سور
+                let organized = [];
+                for(let i=1; i<=114; i++) {
+                    // تصفية الآيات الخاصة بالسورة الحالية
+                    let verses = rawData.filter(v => v.surah_id == i);
+                    // ترتيب الآيات تصاعدياً حسب رقم الآية
+                    verses.sort((a,b) => a.ayah_number - b.ayah_number);
+                    organized.push({ id: i, name: surahNames[i-1], verses: verses });
                 }
+                quranData = organized;
 
                 quranData.forEach((surah, index) => {
                     const opt = document.createElement('option');
@@ -113,22 +108,21 @@
             
             document.getElementById('infoSurah').textContent = surahNames[index];
             
-            // محاولة جلب الجزء والصفحة
-            let firstVerse = surah.verses && surah.verses[0] ? surah.verses[0] : null;
-            document.getElementById('infoJuz').textContent = firstVerse && (firstVerse.juz || firstVerse.juz_number) ? (firstVerse.juz || firstVerse.juz_number) : "-";
-            document.getElementById('infoPage').textContent = firstVerse && (firstVerse.page || firstVerse.page_number) ? (firstVerse.page || firstVerse.page_number) : "-";
+            // جلب الجزء والصفحة من أول آية في السورة
+            let firstVerse = surah.verses && surah.verses.length > 0 ? surah.verses[0] : null;
+            document.getElementById('infoJuz').textContent = firstVerse && firstVerse.juz ? firstVerse.juz : "-";
+            document.getElementById('infoPage').textContent = firstVerse && firstVerse.page ? firstVerse.page : "-";
 
             let content = '';
             if (index !== 8) { // التوبة لا تبدأ بالبسملة
                 content += `<div class="basmala">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</div>`;
             }
 
-            let versesArray = surah.verses || surah.ayahs;
-            if (versesArray && Array.isArray(versesArray)) {
-                versesArray.forEach((verse, idx) => {
-                    // محاولة جلب النص بأي من المفاتيح الشائعة
-                    let text = verse.text || verse.arabic_text || verse.arabic || "";
-                    let verseNumber = verse.id || verse.ayah || (idx + 1); // بعض الملفات تستخدم id للآية
+            if (surah.verses && Array.isArray(surah.verses)) {
+                surah.verses.forEach((verse) => {
+                    // استخدام الحقول الصحيحة من ملفك
+                    let text = verse.text_uthmani || verse.text_simple || "";
+                    let verseNumber = verse.ayah_number;
                     let surahNum = index + 1;
 
                     let sajdaHTML = (sajdaVerses[surahNum] && sajdaVerses[surahNum].includes(verseNumber)) ? `<span class="sajda-mark">۩</span>` : "";
@@ -158,19 +152,19 @@
             const juzStr = juzNumber.toString();
             let found = false;
             for (let i = 0; i < quranData.length; i++) {
-                let verses = quranData[i].verses || quranData[i].ayahs;
+                let verses = quranData[i].verses;
                 if (verses) {
                     for (let j = 0; j < verses.length; j++) {
-                        let vJuz = verses[j].juz || verses[j].juz_number;
-                        if (vJuz && vJuz.toString() === juzStr) {
-                            renderSurah(i, verses[j].id || j + 1);
+                        if (verses[j].juz && verses[j].juz.toString() === juzStr) {
+                            // الانتقال للسورة الصحيحة والآية الصحيحة
+                            renderSurah(i, verses[j].ayah_number);
                             found = true; break;
                         }
                     }
                 }
                 if (found) break;
             }
-            if(!found) alert("لم يتم العثور على الجزء المحدد في هذا الملف.");
+            if(!found) alert("لم يتم العثور على الجزء المحدد.");
         }
 
         function changeSurah(direction) {
